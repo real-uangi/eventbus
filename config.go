@@ -8,6 +8,8 @@
 
 package eventbus
 
+import "runtime"
+
 type Config struct {
 	Dispatchers         int
 	DispatcherQueueSize int
@@ -17,15 +19,15 @@ type Config struct {
 
 func (config *Config) WithDefaults() {
 	if config.Dispatchers == 0 {
-		config.Dispatchers = 2
+		config.Dispatchers = runtime.NumCPU()
 	}
 	if config.DispatcherQueueSize == 0 {
-		config.DispatcherQueueSize = 16
+		config.DispatcherQueueSize = 8 * config.Dispatchers
 	}
 	if config.Executors == 0 {
-		config.Executors = 8
+		config.Executors = 2 * runtime.NumCPU()
 	}
 	if config.ExecutorQueueSize == 0 {
-		config.ExecutorQueueSize = config.Executors * 8
+		config.ExecutorQueueSize = 8 * config.Executors
 	}
 }
