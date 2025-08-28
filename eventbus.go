@@ -95,7 +95,7 @@ func (b *bus) newDispatcher() {
 }
 
 func (b *bus) initExecutors() {
-	for range b.config.ExecutorQueueSize {
+	for range b.config.Executors {
 		go b.autoRestartExecutor()
 	}
 }
