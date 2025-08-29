@@ -18,6 +18,8 @@ type Logger interface {
 	Warnf(format string, args ...interface{})
 }
 
+var logger Logger = DefaultLogger()
+
 type defaultLogger struct{}
 
 func (l *defaultLogger) Infof(format string, args ...interface{}) {

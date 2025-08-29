@@ -42,6 +42,10 @@ func TestBus(t *testing.T) {
 		t.Error(err)
 	}
 
+	if err := bus.Publish("C", 555); err != nil {
+		t.Error(err)
+	}
+
 	t.Log(runtime.NumGoroutine())
 
 	time.Sleep(5 * time.Second)

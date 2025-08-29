@@ -12,6 +12,6 @@ import "github.com/real-uangi/eventbus/trace"
 
 func (b *bus) printPanic(ctx *Context) {
 	if r := recover(); r != nil {
-		b.logger.Warnf("panic on topic[%s] handler[%s]: %v\n%s", ctx.Topic, ctx.handlerName, r, trace.Stack(3))
+		logger.Warnf("panic on topic[%s] handler[%s]: %v\n%s", ctx.Topic, ctx.handlerName, r, trace.Stack(3))
 	}
 }

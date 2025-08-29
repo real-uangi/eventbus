@@ -40,6 +40,10 @@ func (g *handlerGroup) Remove(handler SubscribeHandler) {
 }
 
 func (g *handlerGroup) Dispatch(context *Context, executorQueue chan *Context) {
+	if len(g.handlers) == 0 {
+		logger.Warnf("no handler for topic \"%s\"", context.Topic)
+		return
+	}
 	for name, handler := range g.getHandlers() {
 		executorQueue <- context.Clone(handler, name)
 	}

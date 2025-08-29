@@ -28,8 +28,6 @@ type bus struct {
 
 	handlerGroups map[string]*handlerGroup
 
-	logger Logger
-
 	mu sync.Mutex
 }
 
@@ -42,7 +40,6 @@ func New(config *Config) EventBus {
 		dispatchersQueue: make(chan *Context, config.DispatcherQueueSize),
 		executorQueue:    make(chan *Context, config.ExecutorQueueSize),
 		handlerGroups:    make(map[string]*handlerGroup),
-		logger:           DefaultLogger(),
 	}
 	eb.initExecutors()
 	eb.initDispatchers()
@@ -53,8 +50,8 @@ func NewDefault() EventBus {
 	return New(&Config{})
 }
 
-func (b *bus) WithLogger(logger Logger) {
-	b.logger = logger
+func WithLogger(customLogger Logger) {
+	logger = customLogger
 }
 
 func (b *bus) getGroup(topic string) *handlerGroup {
@@ -117,6 +114,6 @@ func (b *bus) handlerExecute(ctx *Context) {
 	defer b.printPanic(ctx)
 	err := ctx.Execute()
 	if err != nil {
-		b.logger.Warnf("error occurs on topic[%s] handler[%s]: %v\n%s", ctx.Topic, ctx.handlerName, err)
+		logger.Warnf("error occurs on topic[%s] handler[%s]: %v\n%s", ctx.Topic, ctx.handlerName, err)
 	}
 }
