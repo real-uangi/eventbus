@@ -40,17 +40,17 @@ func (g *handlerGroup) Remove(handler SubscribeHandler) {
 }
 
 func (g *handlerGroup) Dispatch(context *Context, executorQueue chan *Context) {
-	for _, handler := range g.getHandlers() {
-		executorQueue <- context.Clone(handler)
+	for name, handler := range g.getHandlers() {
+		executorQueue <- context.Clone(handler, name)
 	}
 }
 
-func (g *handlerGroup) getHandlers() []SubscribeHandler {
+func (g *handlerGroup) getHandlers() map[string]SubscribeHandler {
 	g.mu.Lock()
 	defer g.mu.Unlock()
-	handlers := make([]SubscribeHandler, 0, len(g.handlers))
-	for _, handler := range g.handlers {
-		handlers = append(handlers, handler)
+	handlers := make(map[string]SubscribeHandler)
+	for name, handler := range g.handlers {
+		handlers[name] = handler
 	}
 	return handlers
 }

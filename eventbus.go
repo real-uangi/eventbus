@@ -28,10 +28,12 @@ type bus struct {
 
 	handlerGroups map[string]*handlerGroup
 
+	logger Logger
+
 	mu sync.Mutex
 }
 
-type SubscribeHandler func(data interface{})
+type SubscribeHandler func(data interface{}) error
 
 func New(config *Config) EventBus {
 	config.WithDefaults()
@@ -40,6 +42,7 @@ func New(config *Config) EventBus {
 		dispatchersQueue: make(chan *Context, config.DispatcherQueueSize),
 		executorQueue:    make(chan *Context, config.ExecutorQueueSize),
 		handlerGroups:    make(map[string]*handlerGroup),
+		logger:           DefaultLogger(),
 	}
 	eb.initExecutors()
 	eb.initDispatchers()
@@ -48,6 +51,10 @@ func New(config *Config) EventBus {
 
 func NewDefault() EventBus {
 	return New(&Config{})
+}
+
+func (b *bus) WithLogger(logger Logger) {
+	b.logger = logger
 }
 
 func (b *bus) getGroup(topic string) *handlerGroup {
@@ -96,19 +103,20 @@ func (b *bus) newDispatcher() {
 
 func (b *bus) initExecutors() {
 	for range b.config.Executors {
-		go b.autoRestartExecutor()
-	}
-}
-
-func (b *bus) autoRestartExecutor() {
-	for {
-		b.newExecutor()
+		go b.newExecutor()
 	}
 }
 
 func (b *bus) newExecutor() {
-	defer printPanic()
 	for ctx := range b.executorQueue {
-		ctx.Execute()
+		b.handlerExecute(ctx)
+	}
+}
+
+func (b *bus) handlerExecute(ctx *Context) {
+	defer b.printPanic(ctx)
+	err := ctx.Execute()
+	if err != nil {
+		b.logger.Warnf("error occurs on topic[%s] handler[%s]: %v\n%s", ctx.Topic, ctx.handlerName, err)
 	}
 }

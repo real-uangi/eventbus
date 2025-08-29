@@ -8,23 +8,29 @@
 
 package eventbus
 
+import "errors"
+
+var NilHandler = errors.New("nil handler")
+
 type Context struct {
-	Topic   string      `json:"topic"`
-	Payload interface{} `json:"payload"`
-	handler SubscribeHandler
+	Topic       string      `json:"topic"`
+	Payload     interface{} `json:"payload"`
+	handler     SubscribeHandler
+	handlerName string
 }
 
-func (context *Context) Clone(handler SubscribeHandler) *Context {
+func (context *Context) Clone(handler SubscribeHandler, name string) *Context {
 	return &Context{
-		Topic:   context.Topic,
-		Payload: context.Payload,
-		handler: handler,
+		Topic:       context.Topic,
+		Payload:     context.Payload,
+		handler:     handler,
+		handlerName: name,
 	}
 }
 
-func (context *Context) Execute() {
+func (context *Context) Execute() error {
 	if context.handler == nil {
-		return
+		return NilHandler
 	}
-	context.handler(context.Payload)
+	return context.handler(context.Payload)
 }

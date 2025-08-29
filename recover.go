@@ -8,10 +8,10 @@
 
 package eventbus
 
-import "fmt"
+import "github.com/real-uangi/eventbus/trace"
 
-func printPanic() {
+func (b *bus) printPanic(ctx *Context) {
 	if r := recover(); r != nil {
-		fmt.Printf("executor panic recovered: %v, restarting...\n", r)
+		b.logger.Warnf("panic on topic[%s] handler[%s]: %v\n%s", ctx.Topic, ctx.handlerName, r, trace.Stack(3))
 	}
 }
