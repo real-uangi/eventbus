@@ -90,6 +90,7 @@ func (b *bus) initDispatchers() {
 	for range b.config.Dispatchers {
 		go b.newDispatcher()
 	}
+	logger.Infof("initialized %d dispatchers with queue size %d", b.config.Dispatchers, b.config.DispatcherQueueSize)
 }
 
 func (b *bus) newDispatcher() {
@@ -102,6 +103,7 @@ func (b *bus) initExecutors() {
 	for range b.config.Executors {
 		go b.newExecutor()
 	}
+	logger.Infof("initialized %d executors with queue size %d", b.config.Executors, b.config.ExecutorQueueSize)
 }
 
 func (b *bus) newExecutor() {

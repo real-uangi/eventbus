@@ -19,7 +19,7 @@ type Config struct {
 
 func (config *Config) WithDefaults() {
 	if config.Dispatchers == 0 {
-		config.Dispatchers = runtime.NumCPU()
+		config.Dispatchers = 1 + runtime.NumCPU()/4
 	}
 	if config.DispatcherQueueSize == 0 {
 		config.DispatcherQueueSize = 8 * config.Dispatchers
