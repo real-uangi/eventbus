@@ -28,28 +28,45 @@ go get github.com/real-uangi/eventbus
 package main
 
 import (
-    "fmt"
-    "github.com/real-uangi/eventbus"
-    "time"
+  "errors"
+  "fmt"
+  "github.com/real-uangi/eventbus"
+  "time"
 )
 
 func main() {
-    bus := eventbus.NewDefault()
+  bus := eventbus.NewDefault()
 
-    bus.Subscribe("A", subA1)
-    bus.Subscribe("A", subA2)
-    bus.Subscribe("B", subB1)
-    bus.Subscribe("B", subB2)
+  bus.Subscribe("A", subA1)
+  bus.Subscribe("A", subA2)
+  bus.Subscribe("B", subB1)
+  bus.Subscribe("B", subB2)
 
-    bus.Publish("A", "Hello Event A")
-    bus.Publish("B", 123)
+  bus.Publish("A", "Hello Event A")
+  bus.Publish("B", 123)
 
-    time.Sleep(2 * time.Second)
+  time.Sleep(2 * time.Second)
 }
 
-func subA1(data interface{}) { fmt.Println("subA1 received:", data.(string)) }
-func subA2(data interface{}) { fmt.Println("subA2 received:", data.(string)) }
-func subB1(data interface{}) { fmt.Println("subB1 received:", data.(int)) }
-func subB2(data interface{}) { fmt.Println("subB2 received:", data.(int)) }
+func subA1(data interface{}) error {
+  fmt.Println("subA1", data.(string))
+  return nil
+}
+
+func subA2(data interface{}) error {
+  fmt.Println("subA2", data.(string))
+  panic(errors.New("test panic"))
+  return nil
+}
+
+func subB1(data interface{}) error {
+  fmt.Println("subB1", data.(int))
+  return nil
+}
+
+func subB2(data interface{}) error {
+  fmt.Println("subB2", data.(int))
+  return errors.New("test error")
+}
 ```
 
