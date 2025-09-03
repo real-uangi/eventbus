@@ -18,6 +18,8 @@ type EventBus interface {
 	Subscribe(topic string, handler SubscribeHandler)
 	Unsubscribe(topic string, handler SubscribeHandler)
 	Publish(topic string, data interface{}) error
+	ShouldPublish(topic string, data interface{})
+	MustPublish(topic string, data interface{})
 }
 
 type bus struct {
@@ -84,6 +86,21 @@ func (b *bus) Publish(topic string, data interface{}) error {
 	case <-time.After(5 * time.Second):
 		return errors.New("timeout")
 	}
+}
+
+func (b *bus) ShouldPublish(topic string, data interface{}) {
+	err := b.Publish(topic, data)
+	if err != nil {
+		logger.Warnf("failed to publish event [%s]: %v", topic, err)
+	}
+}
+
+func (b *bus) MustPublish(topic string, data interface{}) {
+	ctx := &Context{
+		Topic:   topic,
+		Payload: data,
+	}
+	b.dispatchersQueue <- ctx
 }
 
 func (b *bus) initDispatchers() {
