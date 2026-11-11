@@ -9,21 +9,17 @@
 package eventbus_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/real-uangi/eventbus"
 	"runtime"
 	"testing"
-	"time"
 )
 
-var bus eventbus.EventBus
-
-func init() {
-	bus = eventbus.NewDefault()
-}
-
 func TestBus(t *testing.T) {
+	bus := eventbus.NewDefault()
+	t.Cleanup(func() { _ = bus.Close(context.Background()) })
 
 	bus.Subscribe("A", subA1)
 	bus.Subscribe("A", subA2)
@@ -48,7 +44,9 @@ func TestBus(t *testing.T) {
 
 	t.Log(runtime.NumGoroutine())
 
-	time.Sleep(5 * time.Second)
+	if err := bus.Close(context.Background()); err != nil {
+		t.Fatal(err)
+	}
 
 	t.Log(runtime.NumGoroutine())
 }
@@ -61,7 +59,6 @@ func subA1(data interface{}) error {
 func subA2(data interface{}) error {
 	fmt.Println("subA2", data.(string))
 	panic(errors.New("test panic"))
-	return nil
 }
 
 func subB1(data interface{}) error {
